@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>磁传感器测试</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>磁传感器读取</h1>
+    <button id="start">开始检测</button>
+    <div id="output">尚未读取数据</div>
+
+    <script>
+        const output = document.getElementById('output');
+        document.getElementById('start').addEventListener('click', () => {
+            if ('Magnetometer' in window) {
+                try {
+                    const sensor = new Magnetometer({ frequency: 10 });
+                    sensor.addEventListener('reading', () => {
+                        output.innerText = `X: ${sensor.x.toFixed(2)} µT\nY: ${sensor.y.toFixed(2)} µT\nZ: ${sensor.z.toFixed(2)} µT`;
+                    });
+                    sensor.addEventListener('error', event => {
+                        output.innerText = `传感器错误：${event.error.name}`;
+                    });
+                    sensor.start();
+                } catch (e) {
+                    output.innerText = `初始化失败：${e}`;
+                }
+            } else {
+                output.innerText = '当前浏览器不支持 Magnetometer API';
+            }
+        });
+    </script>
+</body>
+
+</html>
