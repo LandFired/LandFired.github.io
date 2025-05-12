@@ -130,16 +130,11 @@
                 // 创建Web Workers
                 const coreCount = navigator.hardwareConcurrency || 4;
                 const threadCount = coreCount;
-                console.log(`检测到CPU核心数：${coreCount}，将创建${threadCount}个线程`);
-                this.updateUI(`检测到CPU核心数：${coreCount}，将创建${threadCount}个线程`);
                 
                 let createdThreads = 0;
                 for (let i = 0; i < threadCount; i++) {
                     try {
                         const worker = new Worker('t3.js');
-                        worker.onmessage = (e) => {
-                            console.log(`线程 ${i + 1} 完成操作，耗时：${e.data.duration.toFixed(2)}ms`);
-                        };
                         worker.onerror = (error) => {
                             console.error(`线程 ${i + 1} 发生错误:`, error);
                             this.updateUI(`线程 ${i + 1} 发生错误: ${error.message}`);
@@ -169,7 +164,11 @@
                     console.log(`发送操作 ${operation} 到所有线程`);
                     this.workers.forEach((worker, index) => {
                         try {
-                            worker.postMessage({ operation });
+                            // 发送操作和持续时间（20ms）
+                            worker.postMessage({ 
+                                operation,
+                                duration: 20
+                            });
                         } catch (error) {
                             console.error(`向线程 ${index + 1} 发送消息失败:`, error);
                         }
