@@ -44,18 +44,20 @@ function performOperation(operation) {
 
 // 监听主线程消息
 self.addEventListener('message', function(e) {
-    const { operation } = e.data;
+    const { operation, duration } = e.data;
     const startTime = performance.now();
+    const endTime = startTime + duration;
     
-    // 执行操作
-    performOperation(operation);
+    // 在指定时间内持续执行操作
+    while (performance.now() < endTime) {
+        performOperation(operation);
+    }
     
-    const endTime = performance.now();
-    const duration = endTime - startTime;
+    const actualDuration = performance.now() - startTime;
     
     // 发送结果回主线程
     self.postMessage({
         operation,
-        duration
+        duration: actualDuration
     });
 }); 
