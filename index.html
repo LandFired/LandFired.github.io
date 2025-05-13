@@ -73,6 +73,12 @@
             margin-top: 0;
             color: #333;
         }
+        .cpu-usage {
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +111,7 @@
         class CPUBench {
             constructor() {
                 this.running = false;
-                this.operationSequence = [4,4,4,4];
+                this.operationSequence = [4,4,4,5,5,5];
                 this.currentIndex = 0;
                 this.workers = [];
                 this.timer = null;
@@ -139,6 +145,10 @@
                             console.error(`线程 ${i + 1} 发生错误:`, error);
                             this.updateUI(`线程 ${i + 1} 发生错误: ${error.message}`);
                         };
+                        worker.onmessageerror = (error) => {
+                            console.error(`线程 ${i + 1} 消息错误:`, error);
+                            this.updateUI(`线程 ${i + 1} 消息错误: ${error.message}`);
+                        };
                         this.workers.push(worker);
                         createdThreads++;
                         console.log(`成功创建线程 ${createdThreads}/${threadCount}`);
@@ -146,6 +156,21 @@
                     } catch (error) {
                         console.error(`创建线程 ${i + 1} 失败:`, error);
                         this.updateUI(`创建线程 ${i + 1} 失败: ${error.message}`);
+                        // 尝试使用绝对路径
+                        try {
+                            const worker = new Worker(window.location.origin + '/t3.js');
+                            worker.onerror = (error) => {
+                                console.error(`线程 ${i + 1} 发生错误:`, error);
+                                this.updateUI(`线程 ${i + 1} 发生错误: ${error.message}`);
+                            };
+                            this.workers.push(worker);
+                            createdThreads++;
+                            console.log(`使用绝对路径成功创建线程 ${createdThreads}/${threadCount}`);
+                            this.updateUI(`使用绝对路径成功创建线程 ${createdThreads}/${threadCount}`);
+                        } catch (retryError) {
+                            console.error(`使用绝对路径创建线程 ${i + 1} 也失败:`, retryError);
+                            this.updateUI(`使用绝对路径创建线程 ${i + 1} 也失败: ${retryError.message}`);
+                        }
                     }
                 }
 
@@ -207,6 +232,8 @@
                 this.sensor = null;
                 this.output = document.getElementById('sensorOutput');
                 this.running = false;
+                this.sensorData = [];  // 存储传感器数据
+                this.startTime = 0;    // 记录开始时间
             }
 
             start() {
@@ -215,12 +242,27 @@
                 if ('Magnetometer' in window) {
                     try {
                         this.sensor = new Magnetometer({ frequency: 10 });
+                        this.startTime = Date.now();  // 记录开始时间
+                        this.sensorData = [];         // 清空之前的数据
+                        
                         this.sensor.addEventListener('reading', () => {
+                            const timestamp = Date.now() - this.startTime;  // 计算相对时间
+                            const data = {
+                                timestamp: timestamp,
+                                x: this.sensor.x.toFixed(2),
+                                y: this.sensor.y.toFixed(2),
+                                z: this.sensor.z.toFixed(2)
+                            };
+                            this.sensorData.push(data);  // 保存数据
+                            
+                            // 更新显示
                             this.output.innerText = `X: ${this.sensor.x.toFixed(2)} µT\nY: ${this.sensor.y.toFixed(2)} µT\nZ: ${this.sensor.z.toFixed(2)} µT`;
                         });
+                        
                         this.sensor.addEventListener('error', event => {
                             this.output.innerText = `传感器错误：${event.error.name}`;
                         });
+                        
                         this.sensor.start();
                         this.running = true;
                     } catch (e) {
@@ -240,6 +282,33 @@
                 }
                 this.running = false;
                 this.output.innerText = '传感器已停止';
+                
+                // 导出数据
+                this.exportData();
+            }
+
+            exportData() {
+                // 将数据转换为JSON字符串
+                const jsonData = JSON.stringify(this.sensorData, null, 2);
+                
+                // 创建下载链接
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `magnetometer_data_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+                
+                // 触发下载
+                document.body.appendChild(a);
+                a.click();
+                
+                // 清理
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            getData() {
+                return this.sensorData;
             }
         }
 
