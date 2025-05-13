@@ -62,6 +62,26 @@
             background-color: #e9ecef;
             border-radius: 4px;
             font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f5f5f5;
+            position: sticky;
+            top: 0;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
         .section {
             margin-bottom: 20px;
@@ -103,7 +123,20 @@
                 <button id="startSensorBtn">开始监测</button>
                 <button id="stopSensorBtn" disabled>停止监测</button>
             </div>
-            <div class="sensor-data" id="sensorOutput">尚未读取数据</div>
+            <div class="sensor-data" id="sensorOutput">
+                <div id="currentData">尚未读取数据</div>
+                <table class="data-table" id="dataTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>时间(ms)</th>
+                            <th>X(µT)</th>
+                            <th>Y(µT)</th>
+                            <th>Z(µT)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -231,6 +264,9 @@
             constructor() {
                 this.sensor = null;
                 this.output = document.getElementById('sensorOutput');
+                this.currentData = document.getElementById('currentData');
+                this.dataTable = document.getElementById('dataTable');
+                this.dataBody = document.getElementById('dataBody');
                 this.running = false;
                 this.sensorData = [];  // 存储传感器数据
                 this.startTime = 0;    // 记录开始时间
@@ -244,6 +280,8 @@
                         this.sensor = new Magnetometer({ frequency: 10 });
                         this.startTime = Date.now();  // 记录开始时间
                         this.sensorData = [];         // 清空之前的数据
+                        this.dataBody.innerHTML = ''; // 清空表格
+                        this.dataTable.style.display = 'table'; // 显示表格
                         
                         this.sensor.addEventListener('reading', () => {
                             const timestamp = Date.now() - this.startTime;  // 计算相对时间
@@ -255,21 +293,34 @@
                             };
                             this.sensorData.push(data);  // 保存数据
                             
-                            // 更新显示
-                            this.output.innerText = `X: ${this.sensor.x.toFixed(2)} µT\nY: ${this.sensor.y.toFixed(2)} µT\nZ: ${this.sensor.z.toFixed(2)} µT`;
+                            // 更新当前数据显示
+                            this.currentData.innerText = `当前数据 - X: ${data.x} µT, Y: ${data.y} µT, Z: ${data.z} µT`;
+                            
+                            // 更新表格
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${timestamp}</td>
+                                <td>${data.x}</td>
+                                <td>${data.y}</td>
+                                <td>${data.z}</td>
+                            `;
+                            this.dataBody.appendChild(row);
+                            
+                            // 自动滚动到底部
+                            this.output.scrollTop = this.output.scrollHeight;
                         });
                         
                         this.sensor.addEventListener('error', event => {
-                            this.output.innerText = `传感器错误：${event.error.name}`;
+                            this.currentData.innerText = `传感器错误：${event.error.name}`;
                         });
                         
                         this.sensor.start();
                         this.running = true;
                     } catch (e) {
-                        this.output.innerText = `初始化失败：${e}`;
+                        this.currentData.innerText = `初始化失败：${e}`;
                     }
                 } else {
-                    this.output.innerText = '当前浏览器不支持 Magnetometer API';
+                    this.currentData.innerText = '当前浏览器不支持 Magnetometer API';
                 }
             }
 
@@ -281,30 +332,7 @@
                     this.sensor = null;
                 }
                 this.running = false;
-                this.output.innerText = '传感器已停止';
-                
-                // 导出数据
-                this.exportData();
-            }
-
-            exportData() {
-                // 将数据转换为JSON字符串
-                const jsonData = JSON.stringify(this.sensorData, null, 2);
-                
-                // 创建下载链接
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `magnetometer_data_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-                
-                // 触发下载
-                document.body.appendChild(a);
-                a.click();
-                
-                // 清理
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                this.currentData.innerText = '传感器已停止';
             }
 
             getData() {
