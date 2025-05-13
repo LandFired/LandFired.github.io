@@ -144,12 +144,13 @@
         class CPUBench {
             constructor() {
                 this.running = false;
-                this.operationSequence = [4,4,4,5,5,5];
+                this.operationSequence = [4,5,4,5,4,5];
                 this.currentIndex = 0;
                 this.workers = [];
                 this.timer = null;
                 this.startTime = 0;
                 this.testDuration = 0;
+                this.magnetometer = null;  // 添加磁传感器引用
             }
 
             startTest(duration) {
@@ -157,6 +158,11 @@
                 this.testDuration = duration;
                 this.startTime = Date.now();
                 this.updateUI('测试进行中...');
+                
+                // 启动磁传感器监测
+                if (this.magnetometer) {
+                    this.magnetometer.startRecording();
+                }
                 
                 // 检查浏览器是否支持Web Worker
                 if (typeof Worker === 'undefined') {
@@ -247,6 +253,11 @@
                 this.workers.forEach(worker => worker.terminate());
                 this.workers = [];
                 this.updateUI('测试已完成');
+                
+                // 停止磁传感器监测并显示数据
+                if (this.magnetometer) {
+                    this.magnetometer.stopRecording();
+                }
             }
 
             updateUI(message) {
@@ -258,6 +269,10 @@
                 const progress = (elapsed / this.testDuration) * 100;
                 document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
             }
+
+            setMagnetometer(magnetometer) {
+                this.magnetometer = magnetometer;
+            }
         }
 
         class MagnetometerMonitor {
@@ -268,8 +283,9 @@
                 this.dataTable = document.getElementById('dataTable');
                 this.dataBody = document.getElementById('dataBody');
                 this.running = false;
-                this.sensorData = [];  // 存储传感器数据
-                this.startTime = 0;    // 记录开始时间
+                this.recording = false;  // 添加记录状态标志
+                this.sensorData = [];    // 存储传感器数据
+                this.startTime = 0;      // 记录开始时间
             }
 
             start() {
@@ -278,36 +294,27 @@
                 if ('Magnetometer' in window) {
                     try {
                         this.sensor = new Magnetometer({ frequency: 10 });
-                        this.startTime = Date.now();  // 记录开始时间
-                        this.sensorData = [];         // 清空之前的数据
-                        this.dataBody.innerHTML = ''; // 清空表格
-                        this.dataTable.style.display = 'table'; // 显示表格
+                        this.startTime = Date.now();
+                        this.sensorData = [];
+                        this.dataBody.innerHTML = '';
+                        this.dataTable.style.display = 'table';
                         
                         this.sensor.addEventListener('reading', () => {
-                            const timestamp = Date.now() - this.startTime;  // 计算相对时间
+                            const timestamp = Date.now() - this.startTime;
                             const data = {
                                 timestamp: timestamp,
                                 x: this.sensor.x.toFixed(2),
                                 y: this.sensor.y.toFixed(2),
                                 z: this.sensor.z.toFixed(2)
                             };
-                            this.sensorData.push(data);  // 保存数据
+                            
+                            // 只在记录状态下保存数据
+                            if (this.recording) {
+                                this.sensorData.push(data);
+                            }
                             
                             // 更新当前数据显示
                             this.currentData.innerText = `当前数据 - X: ${data.x} µT, Y: ${data.y} µT, Z: ${data.z} µT`;
-                            
-                            // 更新表格
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${timestamp}</td>
-                                <td>${data.x}</td>
-                                <td>${data.y}</td>
-                                <td>${data.z}</td>
-                            `;
-                            this.dataBody.appendChild(row);
-                            
-                            // 自动滚动到底部
-                            this.output.scrollTop = this.output.scrollHeight;
                         });
                         
                         this.sensor.addEventListener('error', event => {
@@ -324,6 +331,32 @@
                 }
             }
 
+            startRecording() {
+                this.recording = true;
+                this.sensorData = [];  // 清空之前的数据
+                this.startTime = Date.now();
+            }
+
+            stopRecording() {
+                this.recording = false;
+                // 显示记录的数据
+                this.displayRecordedData();
+            }
+
+            displayRecordedData() {
+                this.dataBody.innerHTML = '';  // 清空表格
+                this.sensorData.forEach(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.timestamp}</td>
+                        <td>${data.x}</td>
+                        <td>${data.y}</td>
+                        <td>${data.z}</td>
+                    `;
+                    this.dataBody.appendChild(row);
+                });
+            }
+
             stop() {
                 if (!this.running) return;
                 
@@ -332,6 +365,7 @@
                     this.sensor = null;
                 }
                 this.running = false;
+                this.recording = false;
                 this.currentData.innerText = '传感器已停止';
             }
 
@@ -378,6 +412,8 @@
         window.addEventListener('load', () => {
             startSensorBtn.click();
         });
+
+        cpuBench.setMagnetometer(magnetometer);  // 设置磁传感器引用
     </script>
 </body>
 </html> 
