@@ -7,7 +7,6 @@ export class CPUBench {
         this.testDuration = 0;
         this.magnetometer = null;
         this.atomTaskTime = 20;
-        this.taskTotalTime = 200;
         this.task1 = [4,5,4,5];
         this.task2 = [5,4,5,4];
         this.taskSeq = [1,2,1,2,2,1];
@@ -19,16 +18,14 @@ export class CPUBench {
      * @param {Array} task2 任务2的原子任务序列
      * @param {Array} taskSeq 任务序列（如[1,2,1]）
      * @param {number} atomTaskTime 每个原子任务耗时
-     * @param {number} taskTotalTime 每个任务补足到的总时间
      * @param {number} totalDuration 总测试时长
      */
-    startTest(task1, task2, taskSeq, atomTaskTime, taskTotalTime, totalDuration) {
+    startTest(task1, task2, taskSeq, atomTaskTime, totalDuration) {
         this.running = true;
         this.task1 = task1;
         this.task2 = task2;
         this.taskSeq = taskSeq;
         this.atomTaskTime = atomTaskTime;
-        this.taskTotalTime = taskTotalTime;
         this.startTime = Date.now();
         this.testDuration = totalDuration;
         this.workerStates = [];
@@ -71,7 +68,6 @@ export class CPUBench {
         }
 
         // 每个worker循环执行任务序列直到总时长
-        //here
         this.workers.forEach((worker, idx) => {
             const state = this.workerStates[idx];
             // 递归函数：循环执行任务序列
@@ -93,23 +89,14 @@ export class CPUBench {
                     const taskNum = this.taskSeq[state.taskIndex];
                     const atomList = (taskNum === 1 ? this.task1 : this.task2);
                     let atomIdx = 0;
-                    const taskStart = Date.now();
                     // 递归执行当前任务的每个原子任务
                     const runAtom = () => {
                         if (!this.running) return;
                         if (Date.now() - this.startTime >= this.testDuration) return;
                         if (atomIdx >= atomList.length) {
-                            // 任务内所有原子任务完成，判断是否需要补足时间
-                            const elapsed = Date.now() - taskStart;
-                            if (elapsed < this.taskTotalTime) {
-                                setTimeout(() => {
-                                    state.taskIndex++;
-                                    runOneSeq();
-                                }, this.taskTotalTime - elapsed);
-                            } else {
-                                state.taskIndex++;
-                                runOneSeq();
-                            }
+                            // 任务内所有原子任务完成，直接进入下一个任务
+                            state.taskIndex++;
+                            runOneSeq();
                             return;
                         }
                         // 执行当前原子任务（通过worker）

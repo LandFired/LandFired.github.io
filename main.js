@@ -16,16 +16,14 @@ startBtn.addEventListener('click', () => {
     const task2 = document.getElementById('task2Input').value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
     const taskSeq = document.getElementById('taskSeqInput').value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
     const atomTime = parseInt(document.getElementById('atomTimeInput').value, 10);
-    const taskTotalTime = parseInt(document.getElementById('taskTotalTimeInput').value, 10);
     const totalDuration = parseInt(document.getElementById('totalDurationInput').value, 10);
-    if (task1.length === 0 || task2.length === 0 || taskSeq.length === 0 || !atomTime || !taskTotalTime || !totalDuration) {
-        alert('请完整输入任务1、任务2、任务序列、原子任务时间、任务总时间和总时长');
+    if (task1.length === 0 || task2.length === 0 || taskSeq.length === 0 || !atomTime || !totalDuration) {
+        alert('请完整输入任务1、任务2、任务序列、原子任务时间和总时长');
         return;
     }
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    //here
-    cpuBench.startTest(task1, task2, taskSeq, atomTime, taskTotalTime, totalDuration);
+    cpuBench.startTest(task1, task2, taskSeq, atomTime, totalDuration);
 });
 
 stopBtn.addEventListener('click', () => {
