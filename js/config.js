@@ -10,12 +10,12 @@ GITHUB_*:   阶段 4 再填
 ADMIN_*:    阶段 3 再用
 */
 window.APP_CONFIG = {
-  DATA_SOURCE: "./data/links.sample.json",
+  DATA_SOURCE: "https://raw.githubusercontent.com/LandFired/Nav-Data/main/links.json",
 
-  GITHUB_OWNER: "",
-  GITHUB_REPO:  "nav-data",
+  GITHUB_OWNER: "LandFired",
+  GITHUB_REPO:  "Nav-Data",
   GITHUB_FILE:  "links.json",
-  GITHUB_TOKEN: "",
+  GITHUB_TOKEN: "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",
 
   ADMIN_USER: "user",
   ADMIN_PASS: "user"
