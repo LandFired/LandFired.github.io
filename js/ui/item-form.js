@@ -70,6 +70,26 @@ function createAddModal(onSubmit) {
     }
   });
 
+  // Enter 键导航：标题 → 网址 → 分类 → 提交
+  titleInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      urlInput.focus();
+    }
+  });
+  urlInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      catSelect.focus();
+    }
+  });
+  catSelect.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      btnOk.click();
+    }
+  });
+
   // 取消 + 点击遮罩关闭
   btnCancel.addEventListener("click", hide);
   mask.addEventListener("click", e => { if (e.target === mask) hide(); });
@@ -178,6 +198,26 @@ function createEditModal(onSubmit) {
       errBox.textContent = e.message || String(e);
     } finally {
       btnOk.disabled = false;
+    }
+  });
+
+  // Enter 键导航：标题 → 网址 → 分类 → 保存
+  titleInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      urlInput.focus();
+    }
+  });
+  urlInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      catSelect.focus();
+    }
+  });
+  catSelect.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      btnOk.click();
     }
   });
 
