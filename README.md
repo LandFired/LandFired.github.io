@@ -1,17 +1,5 @@
 # 导航网页项目
 
-## 功能特性
-
-- ✅ 导航条目展示（按分类分组）
-- ✅ 搜索功能（标题/网址）
-- ✅ 分类过滤
-- ✅ 管理员登录（前端账号密码）
-- ✅ 新增/删除/编辑条目
-- ✅ 新增/删除分类
-- ✅ 拖拽排序（管理员模式）
-- ✅ 数据存储在独立 GitHub 仓库
-- ✅ 自动同步到 GitHub（每次操作自动提交）
-
 ## 文件夹结构
 
 ```
@@ -40,59 +28,3 @@
         ├── category-form.js      # 分类表单模块，新增分类的按钮与模态框
         └── app.js                # 应用主入口，持有状态，串联所有模块
 ```
-
-## 配置说明
-
-编辑 `js/config.js`：
-
-```js
-window.APP_CONFIG = {
-  // 数据源：本地测试用 ./data/links.sample.json，部署后用 GitHub raw URL
-  DATA_SOURCE: "https://raw.githubusercontent.com/你的用户名/nav-data/main/links.json",
-  
-  // GitHub 仓库配置
-  GITHUB_OWNER: "你的用户名",
-  GITHUB_REPO:  "nav-data",
-  GITHUB_FILE:  "links.json",
-  GITHUB_TOKEN: "ghp_你的token",  // 需要 repo 权限
-  
-  // 管理员账号（前端校验，非安全边界）
-  ADMIN_USER: "admin",
-  ADMIN_PASS: "admin123"
-};
-```
-
-## 部署到 GitHub Pages
-
-1. 在 GitHub 创建 `nav-frontend` 仓库（存放前端代码）
-2. 在 GitHub 创建 `nav-data` 仓库（存放 `links.json`）
-3. 生成 GitHub Token（Settings → Developer settings → Personal access tokens → Generate new token，勾选 `repo` 权限）
-4. 修改 `js/config.js` 填入配置
-5. 推送 `nav-frontend` 到 GitHub
-6. 在 `nav-frontend` 仓库 Settings → Pages 中启用 GitHub Pages（选择 main 分支）
-7. 访问 `https://你的用户名.github.io/nav-frontend/`
-
-## 本地开发
-
-```bash
-cd 导航网页
-python -m http.server 8080
-```
-
-访问 `http://localhost:8080/`
-
-## 使用说明
-
-### 普通用户
-- 浏览导航条目
-- 使用搜索框搜索标题或网址
-- 点击分类按钮过滤条目
-
-### 管理员
-1. 点击右上角"管理员登录"
-2. 输入账号密码（默认 admin/admin123）
-3. 登录后可以：
-   - 新增/删除/编辑条目
-   - 新增/删除分类
-   - 拖拽卡片调整顺序
-4. 所有操作自动同步到 GitHub 仓库
