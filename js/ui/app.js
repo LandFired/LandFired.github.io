@@ -160,13 +160,22 @@ async function handleAddCategory(name) {
 
 // -------------------- 函数：handleDeleteCategory --------------------
 /*
-功能：删除分类的回调
+功能：删除分类的回调（同时删除该分类下的所有条目）
 输入：
   name: string
 输出：无
 */
 async function handleDeleteCategory(name) {
-  if (!confirm(`确定删除分类"${name}"吗？`)) return;
+  // 统计该分类下有多少个条目
+  const itemCount = rawData.items.filter(it => it.category === name).length;
+
+  // 构造确认提示文本
+  let confirmMsg = `确定删除分类"${name}"吗？`;
+  if (itemCount > 0) {
+    confirmMsg += `\n\n该分类下有 ${itemCount} 个栏目，将一并删除。`;
+  }
+
+  if (!confirm(confirmMsg)) return;
 
   try {
     const newData = window.LogicItems.removeCategory(rawData, name);

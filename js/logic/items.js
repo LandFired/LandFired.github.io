@@ -96,12 +96,12 @@ function addCategory(data, name) {
 
 // -------------------- 函数：removeCategory --------------------
 /*
-功能：在不修改原数据的前提下，返回删除指定分类后的数据
+功能：在不修改原数据的前提下，返回删除指定分类后的数据（同时删除该分类下的所有条目）
 输入：
   data: {categories, items}，原始数据
   name: string，要删除的分类名
 输出：
-  {categories, items}，新数据对象（categories 中过滤掉目标分类）
+  {categories, items}，新数据对象（categories 中过滤掉目标分类，items 中过滤掉该分类下的所有条目）
 */
 function removeCategory(data, name) {
   // 检查分类是否存在
@@ -109,16 +109,15 @@ function removeCategory(data, name) {
     throw new Error("分类不存在: " + name);
   }
 
-  // 检查分类下是否有条目
-  const hasItems = data.items.some(it => it.category === name);
-  if (hasItems) {
-    throw new Error("该分类下还有条目，请先删除所有条目");
-  }
-
   // 过滤掉目标分类
+  const newCategories = data.categories.filter(c => c !== name);
+
+  // 同时过滤掉该分类下的所有条目
+  const newItems = data.items.filter(it => it.category !== name);
+
   return {
-    categories: data.categories.filter(c => c !== name),
-    items: data.items.slice()
+    categories: newCategories,
+    items: newItems
   };
 }
 
