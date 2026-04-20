@@ -1,0 +1,8 @@
+{
+  "categories": ["搜索引擎", "开发工具", "学习资源"],
+  "items": [
+    { "id": "1", "title": "Google",   "url": "https://www.google.com",   "category": "搜索引擎" },
+    { "id": "2", "title": "GitHub",   "url": "https://github.com",       "category": "开发工具" },
+    { "id": "3", "title": "MDN",      "url": "https://developer.mozilla.org", "category": "学习资源" }
+  ]
+}

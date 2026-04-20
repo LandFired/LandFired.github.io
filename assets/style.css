@@ -1,0 +1,157 @@
+/* -------------------- 基础 -------------------- */
+body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f9; }
+header {
+  padding: 16px 24px; background: #fff; border-bottom: 1px solid #eee;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+header h1 { margin: 0; font-size: 20px; }
+main { padding: 24px; }
+
+/* -------------------- 搜索框 -------------------- */
+.search {
+  flex: 1; min-width: 200px; max-width: 400px;
+  padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;
+  font-size: 14px; outline: none;
+}
+.search:focus { border-color: #4a90e2; }
+
+/* -------------------- 管理员按钮 -------------------- */
+.admin-btn {
+  padding: 8px 14px; border: 1px solid #ddd; border-radius: 6px;
+  background: #fff; cursor: pointer; font-size: 13px; color: #555;
+}
+.admin-btn:hover { border-color: #4a90e2; color: #4a90e2; }
+.admin-btn.admin-on { background: #e8f0ff; border-color: #4a90e2; color: #4a90e2; }
+
+/* -------------------- 工具栏容器 -------------------- */
+.toolbar-wrapper {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 24px; background: #fff; border-bottom: 1px solid #eee;
+}
+
+/* -------------------- 分类按钮栏 -------------------- */
+.category-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; flex: 1;
+}
+
+/* 分类按钮容器（相对定位，用于放置删除按钮） */
+.cat-btn-wrapper { position: relative; }
+
+.cat-btn {
+  padding: 6px 14px; border: 1px solid #ddd; border-radius: 16px;
+  background: #fff; cursor: pointer; font-size: 13px; color: #555;
+}
+.cat-btn:hover { border-color: #4a90e2; color: #4a90e2; }
+.cat-btn.active { background: #4a90e2; border-color: #4a90e2; color: #fff; }
+
+/* 分类删除按钮（绝对定位在按钮右上角） */
+.cat-del {
+  position: absolute; top: -4px; right: -4px;
+  width: 16px; height: 16px; padding: 0;
+  border: none; border-radius: 50%;
+  background: #c00; color: #fff;
+  font-size: 12px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.cat-btn-wrapper:hover .cat-del { opacity: 1; }
+.cat-del:hover { background: #a00; }
+
+/* -------------------- 新增按钮 -------------------- */
+.add-btn {
+  padding: 6px 14px; border: 1px solid #4a90e2; border-radius: 16px;
+  background: #4a90e2; color: #fff; cursor: pointer; font-size: 13px;
+  flex-shrink: 0;
+}
+.add-btn:hover { background: #3a7bc8; }
+.add-btn.hidden { display: none; }
+
+/* -------------------- 分类区块 -------------------- */
+.category h2 { font-size: 18px; margin: 16px 0 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+
+/* 卡片容器（相对定位，用于放置按钮） */
+.card-wrapper { position: relative; }
+
+/* 拖拽状态：半透明 */
+.card-wrapper.dragging { opacity: 0.4; }
+
+/* 拖拽目标：显示插入提示线 */
+.card-wrapper.drop-target::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #4a90e2;
+  border-radius: 2px;
+}
+
+.card {
+  display: block; padding: 12px; background: #fff; border: 1px solid #eee;
+  border-radius: 8px; text-decoration: none; color: #333; text-align: center;
+  cursor: pointer;
+}
+.card:hover { border-color: #4a90e2; color: #4a90e2; }
+
+/* 管理员模式下卡片可拖拽时显示抓手光标 */
+.card[draggable="true"] { cursor: grab; }
+.card[draggable="true"]:active { cursor: grabbing; }
+
+/* 编辑按钮（绝对定位在卡片左上角） */
+.card-edit {
+  position: absolute; top: 4px; left: 4px;
+  width: 20px; height: 20px; padding: 0;
+  border: none; border-radius: 50%;
+  background: rgba(255,255,255,0.9); color: #4a90e2;
+  font-size: 14px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.card-wrapper:hover .card-edit { opacity: 1; }
+.card-edit:hover { background: #4a90e2; color: #fff; }
+
+/* 删除按钮（绝对定位在卡片右上角） */
+.card-del {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; padding: 0;
+  border: none; border-radius: 50%;
+  background: rgba(255,255,255,0.9); color: #c00;
+  font-size: 16px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.card-wrapper:hover .card-del { opacity: 1; }
+.card-del:hover { background: #c00; color: #fff; }
+
+.error { color: #c00; }
+.empty { color: #999; padding: 24px 0; text-align: center; }
+
+/* -------------------- 模态框 -------------------- */
+.modal-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-mask.hidden { display: none; }
+.modal {
+  background: #fff; padding: 20px 24px; border-radius: 8px;
+  width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+.modal-small { width: 280px; }
+.modal h3 { margin: 0 0 12px; font-size: 16px; }
+.modal label { display: block; font-size: 13px; color: #555; margin-bottom: 10px; }
+.modal input, .modal select {
+  display: block; width: 100%; box-sizing: border-box;
+  margin-top: 4px; padding: 6px 10px;
+  border: 1px solid #ddd; border-radius: 4px; font-size: 14px;
+}
+.modal input:focus, .modal select:focus { outline: none; border-color: #4a90e2; }
+.modal .m-err { color: #c00; font-size: 13px; min-height: 18px; margin: 4px 0; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.modal-actions button {
+  padding: 6px 14px; border: 1px solid #ddd; border-radius: 4px;
+  background: #fff; cursor: pointer; font-size: 13px;
+}
+.modal-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.modal-actions .m-ok { background: #4a90e2; border-color: #4a90e2; color: #fff; }

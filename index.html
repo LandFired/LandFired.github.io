@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>导航</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header>
+    <h1>我的导航</h1>
+    <!-- 搜索框 -->
+    <input id="search-input" class="search" type="text" placeholder="搜索标题或网址..." />
+    <!-- 管理员登录 / 退出按钮 -->
+    <button id="admin-btn" class="admin-btn">管理员登录</button>
+  </header>
+
+  <!-- 分类按钮栏 + 新增按钮 -->
+  <div class="toolbar-wrapper">
+    <nav id="category-bar" class="category-bar"></nav>
+    <button id="add-category-btn" class="add-btn hidden">+ 新增分类</button>
+    <button id="add-btn" class="add-btn hidden">+ 新增条目</button>
+  </div>
+
+  <main id="nav-root">加载中...</main>
+
+  <script src="js/config.js"></script>
+  <script src="js/data/reader.js"></script>
+  <script src="js/data/writer.js"></script>
+  <script src="js/logic/filter.js"></script>
+  <script src="js/logic/auth.js"></script>
+  <script src="js/logic/items.js"></script>
+  <script src="js/ui/render.js"></script>
+  <script src="js/ui/toolbar.js"></script>
+  <script src="js/ui/admin.js"></script>
+  <script src="js/ui/item-form.js"></script>
+  <script src="js/ui/category-form.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>
