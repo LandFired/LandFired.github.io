@@ -15,7 +15,7 @@ window.APP_CONFIG = {
   GITHUB_OWNER: "LandFired",
   GITHUB_REPO:  "Nav-Data",
   GITHUB_FILE:  "links.json",
-  GITHUB_TOKEN: "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",
+  GITHUB_TOKEN: "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",
 
   ADMIN_USER: "user",
   ADMIN_PASS: "user"
