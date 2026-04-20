@@ -104,15 +104,20 @@ function createAddModal(onSubmit) {
   btn: HTMLElement，新增按钮
   getState: () => {categories, items}，获取当前数据快照
   onSubmit: (input) => Promise<void>，提交回调
+  options: { onBeforeOpen?: () => boolean }，打开前预检查
 输出：
   { syncVisibility }：外部在登录状态变化时调用
 */
-function initAddButton(btn, getState, onSubmit) {
+function initAddButton(btn, getState, onSubmit, options = {}) {
   // 构造模态框
   const modal = createAddModal(onSubmit);
+  const { onBeforeOpen = null } = options;
 
   // 点击按钮：弹出表单并把当前分类列表传进去
   btn.addEventListener("click", () => {
+    // 打开前先执行外部预检查
+    if (onBeforeOpen && onBeforeOpen() === false) return;
+
     const data = getState();
     if (data.categories.length === 0) {
       alert("暂无分类，无法新增条目");

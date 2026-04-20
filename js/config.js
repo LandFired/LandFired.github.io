@@ -1,21 +1,17 @@
 /*
 文件功能：
-集中管理所有可配置项，后续接入 GitHub API 时只改这里
+集中管理所有可配置项，本阶段使用本地 data 文件
 */
 
 // -------------------- 配置区 --------------------
 /*
-DATA_SOURCE: 本阶段先用本地样例，后续替换成 nav-data 仓库的 raw URL
-GITHUB_*:   阶段 4 再填
-ADMIN_*:    阶段 3 再用
+DATA_SOURCE: 本地导航数据文件
+READ_ONLY_LOCAL_DATA: 本地只读模式，所有修改操作只提示不落盘
+ADMIN_*: 管理员登录演示账号
 */
 window.APP_CONFIG = {
-  DATA_SOURCE: "https://raw.githubusercontent.com/LandFired/Nav-Data/main/links.json",
-
-  GITHUB_OWNER: "LandFired",
-  GITHUB_REPO:  "Nav-Data",
-  GITHUB_FILE:  "links.json",
-  GITHUB_TOKEN: "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",
+  DATA_SOURCE: "data/links.json",
+  READ_ONLY_LOCAL_DATA: true,
 
   ADMIN_USER: "user",
   ADMIN_PASS: "user"

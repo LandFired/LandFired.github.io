@@ -1,6 +1,6 @@
 /*
 文件功能：
-数据读取模块 —— 从配置的 DATA_SOURCE 拉取 links.json
+数据读取模块 —— 从配置的 DATA_SOURCE 拉取本地 links.json
 */
 
 // -------------------- 函数：fetchLinks --------------------
@@ -10,7 +10,7 @@
 输出：Promise<{categories:string[], items:object[]}>
 */
 async function fetchLinks() {
-  // 请求数据源
+  // 请求本地数据源
   const res = await fetch(window.APP_CONFIG.DATA_SOURCE, { cache: "no-store" });
   if (!res.ok) throw new Error("读取数据失败: " + res.status);
   return await res.json();

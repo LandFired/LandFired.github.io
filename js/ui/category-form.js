@@ -82,15 +82,21 @@ function createAddCategoryModal(onSubmit) {
 输入：
   btn: HTMLElement，新增分类按钮
   onSubmit: (name) => Promise<void>，提交回调
+  options: { onBeforeOpen?: () => boolean }，打开前预检查
 输出：
   { syncVisibility }：外部在登录状态变化时调用
 */
-function initAddCategoryButton(btn, onSubmit) {
+function initAddCategoryButton(btn, onSubmit, options = {}) {
   // 构造模态框
   const modal = createAddCategoryModal(onSubmit);
+  const { onBeforeOpen = null } = options;
 
   // 点击按钮：弹出表单
-  btn.addEventListener("click", () => modal.show());
+  btn.addEventListener("click", () => {
+    // 打开前先执行外部预检查
+    if (onBeforeOpen && onBeforeOpen() === false) return;
+    modal.show();
+  });
 
   // 根据登录状态切换按钮显隐
   function syncVisibility() {

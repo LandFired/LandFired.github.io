@@ -17,6 +17,29 @@ let addButtonCtrl = null;
 let addCategoryButtonCtrl = null;
 let editModalCtrl = null;
 
+// -------------------- 函数：isReadOnlyLocalData --------------------
+/*
+功能：判断当前是否启用了本地 data 只读模式
+输入：无
+输出：
+  boolean，true 表示所有修改操作都应被拦截
+*/
+function isReadOnlyLocalData() {
+  return !!window.APP_CONFIG.READ_ONLY_LOCAL_DATA;
+}
+
+// -------------------- 函数：notifyReadOnlyUnsupported --------------------
+/*
+功能：弹窗提示本地 data 只读模式下不支持当前修改动作
+输入：
+  action: string，当前尝试执行的动作名称
+输出：无
+*/
+function notifyReadOnlyUnsupported(action) {
+  // 复用统一提示文案，保持所有入口提示一致
+  alert(window.DataWriter.buildReadonlyMessage(action));
+}
+
 // -------------------- 函数：refresh --------------------
 /*
 功能：按当前 state 过滤并重新渲染
@@ -74,6 +97,12 @@ async function reloadData() {
   Promise<void>
 */
 async function handleAddItem(input) {
+  // 本地 data 只读模式下直接提示，不再尝试写入
+  if (isReadOnlyLocalData()) {
+    notifyReadOnlyUnsupported("新增条目");
+    return;
+  }
+
   const newData = window.LogicItems.addItem(rawData, input);
   await window.DataWriter.putLinks(newData, "新增条目: " + input.title);
   await reloadData();
@@ -87,6 +116,13 @@ async function handleAddItem(input) {
 输出：无
 */
 function handleEditItem(item) {
+  // 本地 data 只读模式下直接提示，不再打开编辑模态框
+  if (isReadOnlyLocalData()) {
+    void item;
+    notifyReadOnlyUnsupported("编辑条目");
+    return;
+  }
+
   if (editModalCtrl) editModalCtrl.showEdit(item);
 }
 
@@ -100,6 +136,14 @@ function handleEditItem(item) {
   Promise<void>
 */
 async function handleUpdateItem(id, input) {
+  // 本地 data 只读模式下直接提示，不再尝试写入
+  if (isReadOnlyLocalData()) {
+    void id;
+    void input;
+    notifyReadOnlyUnsupported("编辑条目");
+    return;
+  }
+
   const newData = window.LogicItems.updateItem(rawData, id, input);
   await window.DataWriter.putLinks(newData, "编辑条目: " + input.title);
   await reloadData();
@@ -114,6 +158,14 @@ async function handleUpdateItem(id, input) {
 输出：无
 */
 async function handleDeleteItem(id, title) {
+  // 本地 data 只读模式下直接提示，不再尝试删除
+  if (isReadOnlyLocalData()) {
+    void id;
+    void title;
+    notifyReadOnlyUnsupported("删除条目");
+    return;
+  }
+
   if (!confirm(`确定删除"${title}"吗？`)) return;
 
   try {
@@ -133,6 +185,13 @@ async function handleDeleteItem(id, title) {
 输出：无
 */
 async function handleReorderItems(newOrder) {
+  // 本地 data 只读模式下直接提示，不再尝试排序
+  if (isReadOnlyLocalData()) {
+    void newOrder;
+    notifyReadOnlyUnsupported("调整条目顺序");
+    return;
+  }
+
   try {
     const newData = window.LogicItems.reorderItems(rawData, newOrder);
     await window.DataWriter.putLinks(newData, "调整条目顺序");
@@ -151,6 +210,13 @@ async function handleReorderItems(newOrder) {
   Promise<void>
 */
 async function handleAddCategory(name) {
+  // 本地 data 只读模式下直接提示，不再尝试写入
+  if (isReadOnlyLocalData()) {
+    void name;
+    notifyReadOnlyUnsupported("新增分类");
+    return;
+  }
+
   const newData = window.LogicItems.addCategory(rawData, name);
   await window.DataWriter.putLinks(newData, "新增分类: " + name);
   await reloadData();
@@ -166,6 +232,13 @@ async function handleAddCategory(name) {
 输出：无
 */
 async function handleDeleteCategory(name) {
+  // 本地 data 只读模式下直接提示，不再尝试删除
+  if (isReadOnlyLocalData()) {
+    void name;
+    notifyReadOnlyUnsupported("删除分类");
+    return;
+  }
+
   // 统计该分类下有多少个条目
   const itemCount = rawData.items.filter(it => it.category === name).length;
 
@@ -246,7 +319,15 @@ function bindEvents() {
   addButtonCtrl = window.UIItemForm.initAddButton(
     addBtn,
     () => rawData,
-    handleAddItem
+    handleAddItem,
+    {
+      onBeforeOpen: () => {
+        // 本地 data 只读模式下直接提示，不再打开新增弹窗
+        if (!isReadOnlyLocalData()) return true;
+        notifyReadOnlyUnsupported("新增条目");
+        return false;
+      }
+    }
   );
 
   // 初始化编辑条目模态框
@@ -259,7 +340,15 @@ function bindEvents() {
   const addCategoryBtn = document.getElementById("add-category-btn");
   addCategoryButtonCtrl = window.UICategoryForm.initAddCategoryButton(
     addCategoryBtn,
-    handleAddCategory
+    handleAddCategory,
+    {
+      onBeforeOpen: () => {
+        // 本地 data 只读模式下直接提示，不再打开新增分类弹窗
+        if (!isReadOnlyLocalData()) return true;
+        notifyReadOnlyUnsupported("新增分类");
+        return false;
+      }
+    }
   );
 }
 
